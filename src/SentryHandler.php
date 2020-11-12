@@ -12,24 +12,11 @@ use Sentry\State\Scope;
 
 class SentryHandler extends AbstractProcessingHandler
 {
-    /**
-     * @var HubInterface
-     */
-    private $hub;
+    protected $hub;
 
-    /**
-     * Constructor.
-     *
-     * @param HubInterface $hub    The hub to which errors are reported
-     * @param int|string   $level  The minimum logging level at which this
-     *                             handler will be triggered
-     * @param bool         $bubble Whether the messages that are handled can
-     *                             bubble up the stack or not
-     */
     public function __construct(HubInterface $hub, $level = Logger::DEBUG, bool $bubble = true)
     {
         $this->hub = $hub;
-
         parent::__construct($level, $bubble);
     }
 
@@ -38,16 +25,6 @@ class SentryHandler extends AbstractProcessingHandler
      */
     protected function write(array $record): void
     {
-        $payload = [
-            'level' => self::getSeverityFromLevel($record['level']),
-            'message' => $record['message'],
-            'logger' => 'monolog.' . $record['channel'],
-        ];
-
-        if (isset($record['context']['exception']) && $record['context']['exception'] instanceof \Throwable) {
-            $payload['exception'] = $record['context']['exception'];
-        }
-
         $this->hub->withScope(function (Scope $scope) use ($record, $payload): void {
             $scope->setExtra('monolog.channel', $record['channel']);
             $scope->setExtra('monolog.level', $record['level_name']);
@@ -68,14 +45,16 @@ class SentryHandler extends AbstractProcessingHandler
                 }
             }
 
-            $this->hub->captureEvent($payload);
+            if (isset($record['context']['exception']) && $record['context']['exception'] instanceof \Throwable) {
+                $this->hub->captureException($record['context']['exception']);
+            } else {
+                $this->hub->captureMessage($record['message'], self::getSeverityFromLevel($record['level']));
+            }
         });
     }
 
     /**
      * Translates the Monolog level into the Sentry severity.
-     *
-     * @param int $level The Monolog log level
      */
     private static function getSeverityFromLevel(int $level): Severity
     {

@@ -25,7 +25,7 @@ class SentryHandler extends AbstractProcessingHandler
      */
     protected function write(array $record): void
     {
-        $this->hub->withScope(function (Scope $scope) use ($record, $payload): void {
+        $this->hub->withScope(function (Scope $scope) use ($record): void {
             $scope->setExtra('monolog.channel', $record['channel']);
             $scope->setExtra('monolog.level', $record['level_name']);
 

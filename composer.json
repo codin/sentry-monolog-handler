@@ -1,0 +1,14 @@
+{
+    "name": "codin/sentry-monolog-handler",
+    "description": "sentry monolog handler",
+    "license": "GPL-3.0",
+    "require": {
+        "monolog/monolog": "^1",
+        "sentry/sdk": "^2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Codin\\SentryMonologHandler\\": "src/"
+        }
+    }
+}

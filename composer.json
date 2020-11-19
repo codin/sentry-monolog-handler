@@ -1,14 +1,48 @@
 {
     "name": "codin/sentry-monolog-handler",
     "description": "sentry monolog handler",
-    "license": "GPL-3.0",
+    "license": "Apache-2.0",
+    "type": "library",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "authors": [
+        {
+            "name": "Kieron",
+            "email": "hello@madebykieron.co.uk",
+            "homepage": "http://madebykieron.co.uk",
+            "role": "Developer"
+        }
+    ],
     "require": {
+        "php": ">=7.3",
         "monolog/monolog": "^1",
         "sentry/sdk": "^3"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "@stable",
+        "phpstan/phpstan": "@stable"
     },
     "autoload": {
         "psr-4": {
             "Codin\\SentryMonologHandler\\": "src/"
         }
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "bin-dir": "bin"
+    },
+    "scripts": {
+        "psr": [
+            "./bin/php-cs-fixer fix . --allow-risky=yes --rules=@PSR2,no_unused_imports,ordered_imports,ordered_interfaces,single_quote,trailing_comma_in_multiline_array"
+        ],
+        "test": [
+            "phpstan analyse"
+        ],
+        "uninstall": [
+            "rm -rf ./bin",
+            "rm -rf ./vendor",
+            "rm ./composer.lock"
+        ]
     }
 }

@@ -12,6 +12,9 @@ use Sentry\State\Scope;
 
 class SentryHandler extends AbstractProcessingHandler
 {
+    /**
+     * @var HubInterface
+     */
     protected $hub;
 
     public function __construct(HubInterface $hub, $level = Logger::DEBUG, bool $bubble = true)

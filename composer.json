@@ -1,7 +1,7 @@
 {
     "name": "codin/sentry-monolog-handler",
     "description": "sentry monolog handler",
-    "license": "Apache-2.0",
+    "license": "MIT",
     "type": "library",
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -34,10 +34,10 @@
     },
     "scripts": {
         "psr": [
-            "./bin/php-cs-fixer fix . --allow-risky=yes --rules=@PSR2,no_unused_imports,ordered_imports,ordered_interfaces,single_quote,trailing_comma_in_multiline_array"
+            "./bin/php-cs-fixer fix . --allow-risky=yes --rules=@PSR2,no_unused_imports,ordered_imports,ordered_interfaces,single_quote,trailing_comma_in_multiline"
         ],
         "test": [
-            "phpstan analyse"
+            "phpstan analyse --no-progress --no-ansi --configuration=phpstan.neon"
         ],
         "uninstall": [
             "rm -rf ./bin",

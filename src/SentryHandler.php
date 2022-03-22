@@ -7,6 +7,8 @@ namespace Codin\SentryMonologHandler;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
 use Sentry\Severity;
+use Sentry\Event;
+use Sentry\EventHint;
 use Sentry\State\HubInterface;
 use Sentry\State\Scope;
 
@@ -28,7 +30,18 @@ class SentryHandler extends AbstractProcessingHandler
      */
     protected function write(array $record): void
     {
-        $this->hub->withScope(function (Scope $scope) use ($record): void {
+        $event = Event::createEvent();
+        $event->setLevel(self::getSeverityFromLevel($record['level']));
+        $event->setMessage($record['message']);
+        $event->setLogger(sprintf('monolog.%s', $record['channel']));
+
+        $hint = new EventHint();
+
+        if (isset($record['context']['exception']) && $record['context']['exception'] instanceof \Throwable) {
+            $hint->exception = $record['context']['exception'];
+        }
+
+        $this->hub->withScope(function (Scope $scope) use ($record, $event, $hint): void {
             $scope->setExtra('monolog.channel', $record['channel']);
             $scope->setExtra('monolog.level', $record['level_name']);
 
@@ -41,7 +54,7 @@ class SentryHandler extends AbstractProcessingHandler
                     $scope->setExtra((string) $key, $value);
                 }
             }
-            
+
             if (isset($record['extra']) && is_array($record['extra'])) {
                 foreach ($record['extra'] as $key => $value) {
                     $scope->setExtra((string) $key, $value);
@@ -54,11 +67,7 @@ class SentryHandler extends AbstractProcessingHandler
                 }
             }
 
-            if (isset($record['context']['exception']) && $record['context']['exception'] instanceof \Throwable) {
-                $this->hub->captureException($record['context']['exception']);
-            } else {
-                $this->hub->captureMessage($record['message'], self::getSeverityFromLevel($record['level']));
-            }
+            $this->hub->captureEvent($event, $hint);
         });
     }
 
